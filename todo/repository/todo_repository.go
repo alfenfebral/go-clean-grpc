@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	"go-clean-grpc/todo/models"
+	models "go-clean-grpc/todo/models/http"
 	errorsutil "go-clean-grpc/utils/errors"
 	timeutil "go-clean-grpc/utils/time"
 )

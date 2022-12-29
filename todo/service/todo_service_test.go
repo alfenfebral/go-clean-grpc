@@ -2,7 +2,7 @@ package service_test
 
 import (
 	mockrepository "go-clean-grpc/todo/mocks/repository"
-	"go-clean-grpc/todo/models"
+	models "go-clean-grpc/todo/models/http"
 	todoservice "go-clean-grpc/todo/service"
 	errorsutil "go-clean-grpc/utils/errors"
 	"testing"

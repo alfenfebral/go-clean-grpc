@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	pkgvalidator "go-clean-grpc/pkg/validator"
-	"go-clean-grpc/todo/models"
+	models "go-clean-grpc/todo/models/http"
 	todoservice "go-clean-grpc/todo/service"
 	paginationutil "go-clean-grpc/utils/pagination"
 	responseutil "go-clean-grpc/utils/response"

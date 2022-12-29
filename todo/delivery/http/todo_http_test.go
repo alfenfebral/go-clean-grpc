@@ -13,7 +13,7 @@ import (
 
 	mockservice "go-clean-grpc/todo/mocks/service"
 
-	"go-clean-grpc/todo/models"
+	models "go-clean-grpc/todo/models/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"

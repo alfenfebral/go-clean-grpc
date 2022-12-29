@@ -1,7 +1,7 @@
 package service
 
 import (
-	"go-clean-grpc/todo/models"
+	models "go-clean-grpc/todo/models/http"
 	todorepository "go-clean-grpc/todo/repository"
 )
 

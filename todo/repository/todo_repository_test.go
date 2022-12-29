@@ -3,7 +3,7 @@ package repository_test
 import (
 	"context"
 	"flag"
-	"go-clean-grpc/todo/models"
+	models "go-clean-grpc/todo/models/http"
 	"go-clean-grpc/todo/repository"
 	"log"
 	"os"
