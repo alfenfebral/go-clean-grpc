@@ -11,7 +11,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
-	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -43,17 +42,17 @@ func Routes() *chi.Mux {
 
 // PrintAllRoutes - printing all routes
 func PrintAllRoutes(router *chi.Mux) {
-	logrus.Println("===========================")
-	logrus.Println("REST API routes")
-	logrus.Println("===========================")
+	logger.Println("===========================")
+	logger.Println("REST API routes")
+	logger.Println("===========================")
 	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-		logrus.Printf("%s %s\n", method, route) // Walk and print out all routes
+		logger.Printf("%s %s\n", method, route) // Walk and print out all routes
 		return nil
 	}
 	if err := chi.Walk(router, walkFunc); err != nil {
 		logger.Error(err)
 	}
-	logrus.Println("===========================")
+	logger.Println("===========================")
 }
 
 func main() {
@@ -118,7 +117,7 @@ func startRESTServer(client *mongo.Client) {
 	PrintAllRoutes(router)
 
 	addr := fmt.Sprintf("%s%s", ":", os.Getenv("REST_API_PORT"))
-	logrus.Info("REST API server started on port " + os.Getenv("REST_API_PORT"))
+	logger.Info("REST API server started on port " + os.Getenv("REST_API_PORT"))
 	err := http.ListenAndServe(addr, router)
 	if err != nil {
 		logger.Error(err)
@@ -138,7 +137,7 @@ func startGRPCServer() {
 		logger.Error(err)
 	}
 
-	logrus.Info("gRPC server started on port 8765")
+	logger.Info("gRPC server started on port 8765")
 
 	err = server.Serve(tl)
 	if err != nil {
