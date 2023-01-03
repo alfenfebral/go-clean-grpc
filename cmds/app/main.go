@@ -2,18 +2,26 @@ package main
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/mongo"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 
 	"go-clean-grpc/pkg/config"
 	"go-clean-grpc/pkg/logger"
 	pkgmongodb "go-clean-grpc/pkg/mongodb"
 	pkgvalidator "go-clean-grpc/pkg/validator"
+	todogrpcdelivery "go-clean-grpc/todo/delivery/grpc"
+	todoproto "go-clean-grpc/todo/delivery/grpc/proto"
 	todohttpdelivery "go-clean-grpc/todo/delivery/http"
 	todorepository "go-clean-grpc/todo/repository"
 	todoservice "go-clean-grpc/todo/service"
@@ -57,6 +65,31 @@ func main() {
 	_, cancel, client := pkgmongodb.InitMongoDB()
 	defer cancel()
 
+	go func() {
+		startRESTServer(client)
+	}()
+
+	go func() {
+		startGRPCServer()
+	}()
+
+	// catch shutdown
+	done := make(chan bool, 1)
+	go func() {
+		sig := make(chan os.Signal, 1)
+		signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+		<-sig
+
+		// graceful shutdown
+		// ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		// defer cancel()
+		// server.GracefulStop(ctx, done)
+	}()
+	// wait for graceful shutdown
+	<-done
+}
+
+func startRESTServer(client *mongo.Client) {
 	router := Routes()
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
@@ -80,8 +113,30 @@ func main() {
 	// Print
 	PrintAllRoutes(router)
 
-	addr := fmt.Sprintf("%s%s", ":", os.Getenv("PORT"))
-	err = http.ListenAndServe(addr, router)
+	addr := fmt.Sprintf("%s%s", ":", os.Getenv("REST_API_PORT"))
+	logrus.Info("REST API server started on port " + os.Getenv("REST_API_PORT"))
+	err := http.ListenAndServe(addr, router)
+	if err != nil {
+		logger.Error(err)
+	}
+}
+
+func startGRPCServer() {
+	server := grpc.NewServer()
+	todoGrpcDelivery := todogrpcdelivery.New()
+
+	reflection.Register(server)
+	todoproto.RegisterTodoServer(server, todoGrpcDelivery)
+
+	addr := fmt.Sprintf("%s%s", ":", os.Getenv("GRPC_PORT"))
+	tl, err := net.Listen("tcp", addr)
+	if err != nil {
+		logger.Error(err)
+	}
+
+	logrus.Info("gRPC server started on port 8765")
+
+	err = server.Serve(tl)
 	if err != nil {
 		logger.Error(err)
 	}

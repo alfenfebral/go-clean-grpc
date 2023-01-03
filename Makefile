@@ -20,3 +20,10 @@ test/cover:
 	$(GOTEST) -v -coverprofile=coverage/coverage.out ./...
 	$(GOCOVER) -func=coverage/coverage.out
 	$(GOCOVER) -html=coverage/coverage.out -o coverage/coverage.html
+gen:
+	protoc --proto_path=todo/models/proto \
+	--go-grpc_out=todo/delivery/grpc/proto \
+	--go_out=todo/delivery/grpc/proto \
+	--go_opt=paths=source_relative \
+	--go-grpc_opt=paths=source_relative \
+	todo.proto

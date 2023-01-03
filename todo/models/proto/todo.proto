@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option go_package = "./todo";
+
+message TodoInput {
+  string ID = 1;
+  string Title = 2;
+  string Description = 3;
+}
+
+message TodoOutput {
+  string ID = 1;
+  string Title = 2;
+  string Description = 3;
+  string Created_at = 4;
+  string Updated_at = 5;
+}
+
+service Todo {
+  rpc Create(TodoInput) returns (TodoOutput);
+  rpc Get(TodoInput) returns (TodoOutput);
+}

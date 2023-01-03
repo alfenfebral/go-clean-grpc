@@ -32,7 +32,7 @@ func InitMongoDB() (context.Context, func(), *mongo.Client) {
 	if err != nil {
 		logger.Error(err)
 	}
-	logrus.Println("Database connected")
+	logrus.Println("MongoDB Database connected")
 
 	return ctx, cancel, client
 }
