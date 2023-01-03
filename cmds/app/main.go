@@ -43,6 +43,9 @@ func Routes() *chi.Mux {
 
 // PrintAllRoutes - printing all routes
 func PrintAllRoutes(router *chi.Mux) {
+	logrus.Println("===========================")
+	logrus.Println("REST API routes")
+	logrus.Println("===========================")
 	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
 		logrus.Printf("%s %s\n", method, route) // Walk and print out all routes
 		return nil
@@ -50,6 +53,7 @@ func PrintAllRoutes(router *chi.Mux) {
 	if err := chi.Walk(router, walkFunc); err != nil {
 		logger.Error(err)
 	}
+	logrus.Println("===========================")
 }
 
 func main() {
