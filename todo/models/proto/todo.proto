@@ -34,7 +34,14 @@ message TodoGetAllInput {
   int64 per_page = 3;
 }
 
+message TodoIDInput {
+  string id = 1;
+}
+
 service Todo {
   rpc Create(TodoInput) returns (TodoOutput);
-  rpc Get(TodoGetAllInput) returns (TodoOutputs);
+  rpc GetAll(TodoGetAllInput) returns (TodoOutputs);
+  rpc Get(TodoIDInput) returns (TodoOutput);
+  rpc Update(TodoInput) returns (TodoOutput);
+  rpc Delete(TodoIDInput) returns (TodoOutput);
 }

@@ -23,7 +23,10 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TodoClient interface {
 	Create(ctx context.Context, in *TodoInput, opts ...grpc.CallOption) (*TodoOutput, error)
-	Get(ctx context.Context, in *TodoGetAllInput, opts ...grpc.CallOption) (*TodoOutputs, error)
+	GetAll(ctx context.Context, in *TodoGetAllInput, opts ...grpc.CallOption) (*TodoOutputs, error)
+	Get(ctx context.Context, in *TodoIDInput, opts ...grpc.CallOption) (*TodoOutput, error)
+	Update(ctx context.Context, in *TodoInput, opts ...grpc.CallOption) (*TodoOutput, error)
+	Delete(ctx context.Context, in *TodoIDInput, opts ...grpc.CallOption) (*TodoOutput, error)
 }
 
 type todoClient struct {
@@ -43,9 +46,36 @@ func (c *todoClient) Create(ctx context.Context, in *TodoInput, opts ...grpc.Cal
 	return out, nil
 }
 
-func (c *todoClient) Get(ctx context.Context, in *TodoGetAllInput, opts ...grpc.CallOption) (*TodoOutputs, error) {
+func (c *todoClient) GetAll(ctx context.Context, in *TodoGetAllInput, opts ...grpc.CallOption) (*TodoOutputs, error) {
 	out := new(TodoOutputs)
+	err := c.cc.Invoke(ctx, "/Todo/GetAll", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *todoClient) Get(ctx context.Context, in *TodoIDInput, opts ...grpc.CallOption) (*TodoOutput, error) {
+	out := new(TodoOutput)
 	err := c.cc.Invoke(ctx, "/Todo/Get", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *todoClient) Update(ctx context.Context, in *TodoInput, opts ...grpc.CallOption) (*TodoOutput, error) {
+	out := new(TodoOutput)
+	err := c.cc.Invoke(ctx, "/Todo/Update", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *todoClient) Delete(ctx context.Context, in *TodoIDInput, opts ...grpc.CallOption) (*TodoOutput, error) {
+	out := new(TodoOutput)
+	err := c.cc.Invoke(ctx, "/Todo/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +87,10 @@ func (c *todoClient) Get(ctx context.Context, in *TodoGetAllInput, opts ...grpc.
 // for forward compatibility
 type TodoServer interface {
 	Create(context.Context, *TodoInput) (*TodoOutput, error)
-	Get(context.Context, *TodoGetAllInput) (*TodoOutputs, error)
+	GetAll(context.Context, *TodoGetAllInput) (*TodoOutputs, error)
+	Get(context.Context, *TodoIDInput) (*TodoOutput, error)
+	Update(context.Context, *TodoInput) (*TodoOutput, error)
+	Delete(context.Context, *TodoIDInput) (*TodoOutput, error)
 	mustEmbedUnimplementedTodoServer()
 }
 
@@ -68,8 +101,17 @@ type UnimplementedTodoServer struct {
 func (UnimplementedTodoServer) Create(context.Context, *TodoInput) (*TodoOutput, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedTodoServer) Get(context.Context, *TodoGetAllInput) (*TodoOutputs, error) {
+func (UnimplementedTodoServer) GetAll(context.Context, *TodoGetAllInput) (*TodoOutputs, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAll not implemented")
+}
+func (UnimplementedTodoServer) Get(context.Context, *TodoIDInput) (*TodoOutput, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedTodoServer) Update(context.Context, *TodoInput) (*TodoOutput, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (UnimplementedTodoServer) Delete(context.Context, *TodoIDInput) (*TodoOutput, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedTodoServer) mustEmbedUnimplementedTodoServer() {}
 
@@ -102,8 +144,26 @@ func _Todo_Create_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Todo_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Todo_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TodoGetAllInput)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoServer).GetAll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Todo/GetAll",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoServer).GetAll(ctx, req.(*TodoGetAllInput))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Todo_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TodoIDInput)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -115,7 +175,43 @@ func _Todo_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{
 		FullMethod: "/Todo/Get",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TodoServer).Get(ctx, req.(*TodoGetAllInput))
+		return srv.(TodoServer).Get(ctx, req.(*TodoIDInput))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Todo_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TodoInput)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Todo/Update",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoServer).Update(ctx, req.(*TodoInput))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Todo_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TodoIDInput)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TodoServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Todo/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TodoServer).Delete(ctx, req.(*TodoIDInput))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -132,8 +228,20 @@ var Todo_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Todo_Create_Handler,
 		},
 		{
+			MethodName: "GetAll",
+			Handler:    _Todo_GetAll_Handler,
+		},
+		{
 			MethodName: "Get",
 			Handler:    _Todo_Get_Handler,
+		},
+		{
+			MethodName: "Update",
+			Handler:    _Todo_Update_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _Todo_Delete_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

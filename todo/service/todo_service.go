@@ -71,7 +71,7 @@ func (r *ServiceImpl) Update(id string, value *models.Todo) (*models.Todo, error
 		return nil, err
 	}
 
-	_, err = r.repository.Update(id, &models.Todo{
+	res, err := r.repository.Update(id, &models.Todo{
 		Title:       value.Title,
 		Description: value.Description,
 	})
@@ -79,7 +79,7 @@ func (r *ServiceImpl) Update(id string, value *models.Todo) (*models.Todo, error
 		return nil, err
 	}
 
-	return nil, nil
+	return res, nil
 }
 
 // Delete - delete todo service

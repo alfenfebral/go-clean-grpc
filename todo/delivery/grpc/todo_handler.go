@@ -39,9 +39,7 @@ func (g *GRPCHandler) Create(ctx context.Context, input *proto.TodoInput) (*prot
 	}, nil
 }
 
-func (g *GRPCHandler) Get(ctx context.Context, input *proto.TodoGetAllInput) (*proto.TodoOutputs, error) {
-	fmt.Println(input)
-
+func (g *GRPCHandler) GetAll(ctx context.Context, input *proto.TodoGetAllInput) (*proto.TodoOutputs, error) {
 	page := paginationutil.CurrentPage(int(input.Page))
 	perPage := paginationutil.PerPage(int(input.PerPage))
 	offset := paginationutil.Offset(page, perPage)
@@ -75,5 +73,49 @@ func (g *GRPCHandler) Get(ctx context.Context, input *proto.TodoGetAllInput) (*p
 			PageCount:  int64(pageCount),
 			TotalCount: int64(totalCount),
 		},
+	}, nil
+}
+
+func (g *GRPCHandler) Get(ctx context.Context, input *proto.TodoIDInput) (*proto.TodoOutput, error) {
+	result, err := g.service.GetByID(input.Id)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return &proto.TodoOutput{
+		Id:          result.ID.Hex(),
+		Title:       result.Title,
+		Description: result.Description,
+		CreatedAt:   result.CreatedAt.String(),
+		UpdatedAt:   result.UpdatedAt.String(),
+	}, nil
+}
+
+func (g *GRPCHandler) Update(ctx context.Context, input *proto.TodoInput) (*proto.TodoOutput, error) {
+	result, err := g.service.Update(input.Id, &models.Todo{
+		Title:       input.Title,
+		Description: input.Description,
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return &proto.TodoOutput{
+		Id: result.ID.Hex(),
+	}, nil
+}
+
+func (g *GRPCHandler) Delete(ctx context.Context, input *proto.TodoIDInput) (*proto.TodoOutput, error) {
+	err := g.service.Delete(input.Id)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return &proto.TodoOutput{
+		Id:          input.Id,
+		Title:       "",
+		Description: "",
+		CreatedAt:   "",
+		UpdatedAt:   "",
 	}, nil
 }

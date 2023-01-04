@@ -126,7 +126,7 @@ func TestTodoUpdate(t *testing.T) {
 		result, err := service.Update(DefaultID, &models.Todo{})
 
 		assert.NoError(t, err)
-		assert.Nil(t, result)
+		assert.Equal(t, mockTodo, result)
 	})
 
 	t.Run("error when count find by id", func(t *testing.T) {
