@@ -73,7 +73,7 @@ func main() {
 	}()
 
 	go func() {
-		startGRPCServer()
+		startGRPCServer(client)
 	}()
 
 	// catch shutdown
@@ -109,7 +109,7 @@ func startRESTServer(client *mongo.Client) {
 	// Service
 	todoService := todoservice.New(todoRepo)
 
-	// Handler
+	// Delivery
 	todoHandler := todohttpdelivery.New(todoService)
 	todoHandler.RegisterRoutes(router)
 
@@ -124,9 +124,15 @@ func startRESTServer(client *mongo.Client) {
 	}
 }
 
-func startGRPCServer() {
+func startGRPCServer(client *mongo.Client) {
 	server := grpc.NewServer()
-	todoGrpcDelivery := todogrpcdelivery.New()
+
+	// Repository
+	todoRepo := todorepository.New(client)
+	// Service
+	todoService := todoservice.New(todoRepo)
+	// Delivery
+	todoGrpcDelivery := todogrpcdelivery.New(todoService)
 
 	reflection.Register(server)
 	todoproto.RegisterTodoServer(server, todoGrpcDelivery)

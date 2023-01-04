@@ -3,20 +3,38 @@ syntax = "proto3";
 option go_package = "./todo";
 
 message TodoInput {
-  string ID = 1;
-  string Title = 2;
-  string Description = 3;
+  string id = 1;
+  string title = 2;
+  string description = 3;
 }
 
 message TodoOutput {
-  string ID = 1;
-  string Title = 2;
-  string Description = 3;
-  string Created_at = 4;
-  string Updated_at = 5;
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
+message TodoOutputs {
+  repeated TodoOutput data = 1;
+  Meta meta = 2;
+}
+
+message Meta {
+  int64 per_page = 1;
+  int64 page = 2;
+  int64 page_count = 3;
+  int64 total_count = 4;
+}
+
+message TodoGetAllInput {
+  string q = 1;
+  int64 page = 2;
+  int64 per_page = 3;
 }
 
 service Todo {
   rpc Create(TodoInput) returns (TodoOutput);
-  rpc Get(TodoInput) returns (TodoOutput);
+  rpc Get(TodoGetAllInput) returns (TodoOutputs);
 }
