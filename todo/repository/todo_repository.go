@@ -47,6 +47,7 @@ func (r *RepositoryImpl) FindAll(keyword string, limit int, offset int) ([]*mode
 	findOptions := options.Find()
 	findOptions.SetLimit(int64(limit))
 	findOptions.SetSkip(int64(offset))
+	findOptions.SetSort(bson.D{{Key: "updatedAt", Value: -1}})
 
 	collection := r.client.Database(os.Getenv("DB_NAME")).Collection("todo")
 	cur, err := collection.Find(ctx, bson.M{"title": bson.M{"$regex": keyword, "$options": "i"}}, findOptions)
