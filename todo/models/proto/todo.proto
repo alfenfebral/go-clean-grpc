@@ -38,10 +38,14 @@ message TodoIDInput {
   string id = 1;
 }
 
+message TodoSuccess {
+  bool success = 1;
+}
+
 service Todo {
   rpc Create(TodoInput) returns (TodoOutput);
   rpc GetAll(TodoGetAllInput) returns (TodoOutputs);
   rpc Get(TodoIDInput) returns (TodoOutput);
   rpc Update(TodoInput) returns (TodoOutput);
-  rpc Delete(TodoIDInput) returns (TodoOutput);
+  rpc Delete(TodoIDInput) returns (TodoSuccess);
 }

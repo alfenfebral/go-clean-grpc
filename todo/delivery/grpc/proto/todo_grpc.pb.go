@@ -26,7 +26,7 @@ type TodoClient interface {
 	GetAll(ctx context.Context, in *TodoGetAllInput, opts ...grpc.CallOption) (*TodoOutputs, error)
 	Get(ctx context.Context, in *TodoIDInput, opts ...grpc.CallOption) (*TodoOutput, error)
 	Update(ctx context.Context, in *TodoInput, opts ...grpc.CallOption) (*TodoOutput, error)
-	Delete(ctx context.Context, in *TodoIDInput, opts ...grpc.CallOption) (*TodoOutput, error)
+	Delete(ctx context.Context, in *TodoIDInput, opts ...grpc.CallOption) (*TodoSuccess, error)
 }
 
 type todoClient struct {
@@ -73,8 +73,8 @@ func (c *todoClient) Update(ctx context.Context, in *TodoInput, opts ...grpc.Cal
 	return out, nil
 }
 
-func (c *todoClient) Delete(ctx context.Context, in *TodoIDInput, opts ...grpc.CallOption) (*TodoOutput, error) {
-	out := new(TodoOutput)
+func (c *todoClient) Delete(ctx context.Context, in *TodoIDInput, opts ...grpc.CallOption) (*TodoSuccess, error) {
+	out := new(TodoSuccess)
 	err := c.cc.Invoke(ctx, "/Todo/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ type TodoServer interface {
 	GetAll(context.Context, *TodoGetAllInput) (*TodoOutputs, error)
 	Get(context.Context, *TodoIDInput) (*TodoOutput, error)
 	Update(context.Context, *TodoInput) (*TodoOutput, error)
-	Delete(context.Context, *TodoIDInput) (*TodoOutput, error)
+	Delete(context.Context, *TodoIDInput) (*TodoSuccess, error)
 	mustEmbedUnimplementedTodoServer()
 }
 
@@ -110,7 +110,7 @@ func (UnimplementedTodoServer) Get(context.Context, *TodoIDInput) (*TodoOutput, 
 func (UnimplementedTodoServer) Update(context.Context, *TodoInput) (*TodoOutput, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
 }
-func (UnimplementedTodoServer) Delete(context.Context, *TodoIDInput) (*TodoOutput, error) {
+func (UnimplementedTodoServer) Delete(context.Context, *TodoIDInput) (*TodoSuccess, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedTodoServer) mustEmbedUnimplementedTodoServer() {}

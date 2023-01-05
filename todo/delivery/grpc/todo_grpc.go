@@ -7,7 +7,11 @@ import (
 	proto "go-clean-grpc/todo/delivery/grpc/proto"
 	models "go-clean-grpc/todo/models/http"
 	todoservice "go-clean-grpc/todo/service"
+	errorsutil "go-clean-grpc/utils/errors"
 	paginationutil "go-clean-grpc/utils/pagination"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type GRPCHandler struct {
@@ -79,7 +83,7 @@ func (g *GRPCHandler) GetAll(ctx context.Context, input *proto.TodoGetAllInput) 
 func (g *GRPCHandler) Get(ctx context.Context, input *proto.TodoIDInput) (*proto.TodoOutput, error) {
 	result, err := g.service.GetByID(input.Id)
 	if err != nil {
-		fmt.Println(err)
+		return nil, status.Error(codes.NotFound, "Not Found")
 	}
 
 	return &proto.TodoOutput{
@@ -105,17 +109,15 @@ func (g *GRPCHandler) Update(ctx context.Context, input *proto.TodoInput) (*prot
 	}, nil
 }
 
-func (g *GRPCHandler) Delete(ctx context.Context, input *proto.TodoIDInput) (*proto.TodoOutput, error) {
+func (g *GRPCHandler) Delete(ctx context.Context, input *proto.TodoIDInput) (*proto.TodoSuccess, error) {
 	err := g.service.Delete(input.Id)
 	if err != nil {
-		fmt.Println(err)
+		if err == errorsutil.ErrNotFound {
+			return nil, status.Error(codes.NotFound, "Not Found")
+		}
 	}
 
-	return &proto.TodoOutput{
-		Id:          input.Id,
-		Title:       "",
-		Description: "",
-		CreatedAt:   "",
-		UpdatedAt:   "",
+	return &proto.TodoSuccess{
+		Success: true,
 	}, nil
 }
